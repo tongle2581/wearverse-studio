@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="私人衣橱决策助手：自己录入衣服资料，按检衣评分体系比较。">
+<title>衣选 STUDIO｜把选择变简单</title>
+<style>
+:root{--ink:#24231f;--muted:#77736d;--line:#e8e2d9;--paper:#f7f5f1;--accent:#a65e42;--green:#56644d}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif}
+header{background:#fff;border-bottom:1px solid var(--line);padding:15px max(4vw,18px);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:4}
+.logo{font-size:23px;font-weight:900;letter-spacing:2px}.logo small{font-size:11px;color:var(--muted);font-weight:400;letter-spacing:0;margin-left:10px}
+.wrap{max-width:1120px;margin:auto;padding:22px 18px 60px}.hero{padding:24px 0 18px}.eyebrow{color:var(--accent);font-size:11px;letter-spacing:2px;font-weight:800}.hero h1{font-size:clamp(30px,5vw,48px);margin:10px 0}.hero p{color:var(--muted);line-height:1.8;font-size:13px;max-width:720px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.btn{border:1px solid #282724;background:#282724;color:white;border-radius:7px;padding:10px 15px;cursor:pointer;font:inherit;font-size:12px}.btn.light{background:white;color:#282724;border-color:var(--line)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px}.stat b{display:block;font-size:25px;color:var(--accent)}.stat span{font-size:11px;color:var(--muted)}
+.section{margin-top:25px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:10px;flex-wrap:wrap;margin-bottom:12px}.section-head h2{font-size:19px;margin:0}.section-head p{font-size:11px;color:var(--muted);margin:5px 0 0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.toolbar input,.toolbar select{padding:10px;border:1px solid var(--line);border-radius:7px;background:white;font:inherit;font-size:12px;min-width:150px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{background:white;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}.photo{height:190px;background:#eee8df;display:grid;place-items:center;color:#8a8176;overflow:hidden}.photo img{width:100%;height:100%;object-fit:cover}.cardbody{padding:13px;display:flex;flex-direction:column;flex:1}.brand{font-size:10px;color:var(--accent);font-weight:800}.owned-tag{display:inline-block;background:#edf2e9;color:#526747;border-radius:4px;padding:3px 6px;font-size:10px;margin:4px 0 0 5px}.card h3{font-size:14px;margin:6px 0}.meta{font-size:11px;color:var(--muted);line-height:1.7}.price{font-size:18px;font-weight:900;margin:8px 0}.score{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:9px;font-size:12px}.score strong{font-size:18px;color:var(--accent)}.bar{height:5px;background:#eee9e2;border-radius:9px;margin:7px 0 10px;overflow:hidden}.bar i{display:block;height:100%;background:#bd805d}.cardbuttons{display:flex;gap:6px;margin-top:auto}.cardbuttons button{flex:1;font-size:11px;padding:8px 4px;border-radius:5px;border:1px solid #292826;background:#292826;color:#fff;cursor:pointer}.cardbuttons .secondary{background:white;color:#292826;border-color:var(--line)}.cardbuttons .selected{background:#f4ebe5;color:var(--accent);border-color:var(--accent)}
+.panel{background:white;border:1px solid var(--line);border-radius:11px;padding:16px;margin-top:14px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}.field label{font-size:11px;color:#5e5952}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:10px;font:inherit;font-size:12px;background:white}.field textarea{min-height:66px;resize:vertical}.hint{font-size:10px;color:#918980;line-height:1.6}.form-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.compare-list{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.chip{background:#f2eee8;border-radius:7px;padding:8px 10px;font-size:11px}.compare-table{width:100%;border-collapse:collapse;font-size:12px;min-width:520px}.compare-table th,.compare-table td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}.compare-table th{background:#f7f5f1}.tablewrap{overflow:auto}.winner{background:#282724;color:white;border-radius:10px;padding:16px;margin:12px 0}.winner b{font-size:21px;color:#f1c9a9}.weights{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.weight{background:#f8f6f2;padding:10px;border-radius:7px}.weight b{display:block;color:var(--accent);font-size:18px}.weight span{font-size:10px}
+.empty{background:white;border:1px dashed var(--line);border-radius:10px;padding:38px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1}
+#editor{display:none}#editor.show{display:block}.notice{background:#f4eee7;border-radius:8px;padding:11px;font-size:11px;line-height:1.7;color:#705b4d;margin:12px 0}
+footer{text-align:center;color:#999188;font-size:10px;padding:25px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.weights{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){header{padding:12px 14px}.logo{font-size:19px}.logo small{display:block;margin:3px 0 0}.wrap{padding:16px 12px 45px}.stats{gap:6px}.stat{padding:10px}.stat b{font-size:21px}.grid{gap:8px}.photo{height:135px}.cardbody{padding:9px}.card h3{font-size:12px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.toolbar input,.toolbar select{flex:1;min-width:120px}}
+
+/* STUDIO refresh */
+:root{--ink:#111318;--muted:#777b84;--line:#e5e7eb;--paper:#f4f5f7;--accent:#c5f044;--green:#26321b}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{background:var(--paper);color:var(--ink);font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif;letter-spacing:-.01em}
+header{background:rgba(17,19,24,.96);color:#fff;border:0;padding:15px max(4vw,18px);backdrop-filter:blur(16px);box-shadow:0 8px 30px #10131a18}
+.logo{font-size:25px;letter-spacing:-1.5px}.logo small{color:#aeb3bd;font-size:9px;letter-spacing:1.7px;text-transform:uppercase}
+header .btn.light{background:var(--accent);border-color:var(--accent);color:#111318;font-weight:800}
+.wrap{max-width:1240px;padding-top:30px}.hero{background:#111318;color:#fff;border-radius:24px;padding:clamp(26px,5vw,58px);position:relative;overflow:hidden;isolation:isolate;box-shadow:0 22px 60px #11131818}
+.hero:after{content:"";position:absolute;width:390px;height:390px;border:1px solid #ffffff22;border-radius:50%;right:-100px;top:-170px;box-shadow:0 0 0 38px #ffffff08,0 0 0 78px #ffffff06;z-index:-1}
+.eyebrow{color:var(--accent);letter-spacing:3px}.hero h1{font-size:clamp(34px,6vw,68px);line-height:1.08;letter-spacing:-2.8px;max-width:760px}.hero p{color:#b8bdc7;font-size:14px;max-width:620px}.hero .btn{background:var(--accent);border-color:var(--accent);color:#111318;font-weight:800}.hero .btn.light{background:transparent;color:#fff;border-color:#ffffff40}
+.btn{border-radius:999px;padding:11px 18px;font-weight:650;transition:transform .2s,background .2s,box-shadow .2s}.btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px #11131820}.btn:active{transform:scale(.97)}
+.stats{gap:12px;margin:20px 0 30px}.stat{border:0;border-radius:16px;padding:18px 20px;box-shadow:0 5px 20px #11131808;transition:transform .25s}.stat:hover{transform:translateY(-4px)}.stat b{font-size:32px;color:#111318;letter-spacing:-1.5px}.stat span{color:#858994;font-weight:650}
+.section{margin-top:34px}.section-head h2{font-size:23px;letter-spacing:-.8px}.section-head p{font-size:12px}.section-head>.btn{background:#111318;border-color:#111318}
+.toolbar input,.toolbar select,.field input,.field select,.field textarea{border:1px solid #e1e3e8;border-radius:10px;padding:12px 13px;outline:none;transition:border .2s,box-shadow .2s}.toolbar input:focus,.toolbar select:focus,.field input:focus,.field select:focus,.field textarea:focus{border-color:#8eae2c;box-shadow:0 0 0 3px #c5f04444}
+.grid{gap:16px}.card{border:1px solid #e8e9ed;border-radius:18px;box-shadow:0 5px 22px #11131808;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s,border-color .2s}.card:hover{transform:translateY(-6px);box-shadow:0 18px 38px #11131816;border-color:#c5f044}.photo{height:220px;background:linear-gradient(135deg,#e8e9ed,#f7f7f8);font-size:11px;letter-spacing:1px}.photo img{transition:transform .5s}.card:hover .photo img{transform:scale(1.045)}.cardbody{padding:16px}.brand{color:#7a8d37;letter-spacing:.3px}.card h3{font-size:16px;letter-spacing:-.3px}.price{font-size:23px;letter-spacing:-1px}.score strong{color:#657e22}.bar{height:6px;background:#edf0e5}.bar i{background:#b6df35;border-radius:9px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.cardbuttons{gap:7px;flex-wrap:wrap}.cardbuttons button{border-radius:999px;padding:9px 8px;transition:all .2s}.cardbuttons button:hover{transform:translateY(-1px)}.cardbuttons .selected{background:#eff8d7;color:#425b0e;border-color:#c5e66b}
+.panel{border:1px solid #e8e9ed;border-radius:18px;box-shadow:0 8px 30px #11131808;padding:20px}.empty{border:1px dashed #cdd1d9;border-radius:18px;background:#fff;padding:48px 20px}.compare-table th{background:#f0f2e9}.winner{background:#111318;border-radius:18px;padding:22px}.winner b{color:var(--accent)}.weight{background:#f1f3ec;border-radius:12px}.weight b{color:#718c23}.notice{background:#f1f4e8;color:#596342;border-radius:12px}
+#editor{transform-origin:top;animation:rise .35s ease}#editor.show{display:block}@keyframes rise{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}.card{animation:cardIn .45s both}@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+#compareDock{position:fixed;z-index:8;left:50%;bottom:18px;transform:translate(-50%,18px);width:min(560px,calc(100% - 28px));background:#111318;color:#fff;border:1px solid #ffffff20;border-radius:18px;padding:11px 12px 11px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 16px 50px #11131855;opacity:0;pointer-events:none;transition:.25s}#compareDock.visible{opacity:1;transform:translate(-50%,0);pointer-events:auto}#compareDock span{font-size:12px;color:#c5c9d1}#compareDock b{color:#c5f044}#compareDock button{background:#c5f044;color:#111318;border:0;border-radius:999px;padding:11px 18px;font-weight:850;white-space:nowrap}
+footer{padding:40px 20px 90px;color:#8b9099;letter-spacing:1px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.photo{height:175px}.hero{border-radius:18px}.hero h1{letter-spacing:-1.8px}.stats{gap:8px}}
+@media(max-width:520px){.wrap{padding:14px 12px 50px}.logo{font-size:21px}.logo small{font-size:8px}.hero{padding:27px 21px}.hero h1{font-size:37px}.stats .stat{padding:13px}.stat b{font-size:26px}.grid{gap:9px}.photo{height:145px}.cardbody{padding:10px}.card h3{font-size:13px}.price{font-size:19px}.cardbuttons button{font-size:10px;padding:8px 6px}.section-head h2{font-size:20px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+
+.profile-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.profile-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}.fit-pill{display:inline-flex;align-items:center;gap:5px;background:#f0f8d9;color:#40570d;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800}.fit-meter{height:6px;border-radius:9px;background:#edf0e5;overflow:hidden;margin:7px 0}.fit-meter i{display:block;height:100%;background:#b6df35}.subhead{font-size:13px;font-weight:850;margin:16px 0 8px;color:#333}
+@media(max-width:760px){.profile-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.profile-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#bodyProfile.collapsed>:not(.section-head){display:none}#bodyProfile.collapsed{padding-bottom:16px}
+
+/* PERSONAL STYLE + OUTFIT MODULES */
+.reco-panel{background:#111318;color:#fff;border-radius:20px;padding:20px;margin-top:14px;box-shadow:0 12px 34px #11131814}
+.reco-panel h3{margin:0 0 7px;font-size:19px}.reco-panel p{color:#b9bec8;font-size:12px;line-height:1.7;margin:0 0 14px}
+.reco-panel .btn{background:#c5f044;color:#111318;border-color:#c5f044;font-weight:850}
+.reco-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.reco-card{background:#fff;color:#17191e;border:1px solid #e8e9ed;border-radius:14px;padding:14px;min-width:0}
+.reco-card b{display:block;font-size:14px;margin-bottom:7px}.reco-card p{color:#656b75;margin:0;font-size:12px;line-height:1.75;white-space:normal}
+.reco-tags{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}.reco-tags span{font-size:10px;background:#eef5dc;color:#526b18;border-radius:999px;padding:5px 8px}
+.reco-empty{background:#f1f3ec;color:#596342;border-radius:12px;padding:14px;font-size:12px;line-height:1.8;margin-top:12px}
+.style-prefs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}.style-chip{border:1px solid #dfe3d6;background:#fff;color:#34382d;border-radius:999px;padding:9px 13px;font:inherit;font-size:12px;cursor:pointer;transition:.18s}.style-chip.active{background:#c5f044;border-color:#c5f044;color:#111318;font-weight:800;box-shadow:0 4px 14px #11131812}.style-caption{font-size:11px;color:var(--muted);line-height:1.7}
+@media(max-width:520px){.reco-grid{grid-template-columns:1fr}.reco-panel{padding:16px}}
+</style></head>
+<body>
+<header><div class="logo">衣选 <small>STUDIO / PERSONAL WARDROBE</small></div><button class="btn light" onclick="document.getElementById('editor').classList.toggle('show')">＋ 添加衣服</button></header>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">PERSONAL CLOTHING COMPARISON</div><h1>好衣服，值得认真比较。</h1><p>一个更清晰的私人选衣工作台。添加单品、勾选比较、查看结论。无需注册，无需 AI，数据只保存在当前浏览器。</p>
+<div class="actions"><button class="btn" onclick="showEditor()">＋ 录入一件衣服</button><button class="btn light" onclick="document.getElementById('jsonImport').click()">导入备份 JSON</button><button class="btn light" onclick="exportJSON()">导出我的衣服数据</button><input id="jsonImport" type="file" accept=".json,application/json" hidden onchange="importJSON(event)"></div></section>
+<div class="stats"><div class="stat"><b id="totalCount">0</b><span>已录入衣服</span></div><div class="stat"><b id="chosenCount">0/4</b><span>当前对比选择</span></div><div class="stat"><b id="bestScore">—</b><span>当前最高综合分</span></div><div class="stat"><b id="wardrobeCount">0</b><span>我的衣橱</span></div></div>
+<section class="section panel" id="bodyProfile">
+<div class="section-head"><div><h2>我的身材档案</h2><p>填写一次，保存在本机；用于估算衣服尺寸是否适合你。</p></div><div style="display:flex;gap:8px;align-items:center"><span class="fit-pill" id="profileStatus">尚未填写</span><button class="btn light" type="button" onclick="toggleProfile()" id="profileToggle">收起</button></div></div>
+<div class="notice">尺寸请尽量使用厘米。身体围度按身体实际测量；衣服尺寸按商品详情页的成衣尺寸填写。系统只做尺寸匹配估算，不等于试穿效果。</div>
+<div class="subhead">身体数据</div><div class="profile-grid">
+<div class="field"><label for="bodyHeight">身高（cm）</label><input id="bodyHeight" type="number" min="100" max="230" placeholder="例如 175"></div>
+<div class="field"><label for="bodyWeight">体重（kg，可选）</label><input id="bodyWeight" type="number" min="25" max="250" step="0.1" placeholder="例如 68"></div>
+<div class="field"><label for="bodyShoulder">肩宽（cm）</label><input id="bodyShoulder" type="number" min="20" max="70" step="0.5" placeholder="例如 44"></div>
+<div class="field"><label for="bodyChest">胸围（cm）</label><input id="bodyChest" type="number" min="50" max="180" step="0.5" placeholder="例如 92"></div>
+<div class="field"><label for="bodyWaist">腰围（cm）</label><input id="bodyWaist" type="number" min="40" max="160" step="0.5" placeholder="例如 78"></div>
+<div class="field"><label for="bodyHip">臀围（cm）</label><input id="bodyHip" type="number" min="50" max="180" step="0.5" placeholder="例如 96"></div>
+<div class="field"><label for="bodyArm">臂长（cm，可选）</label><input id="bodyArm" type="number" min="35" max="100" step="0.5" placeholder="例如 60"></div>
+<div class="field"><label for="bodyInseam">内侧腿长（cm，可选）</label><input id="bodyInseam" type="number" min="45" max="110" step="0.5" placeholder="例如 80"></div>
+<div class="field"><label for="fitPreference">喜欢的穿着松量</label><select id="fitPreference"><option value="standard">标准合身</option><option value="slim">偏修身</option><option value="relaxed">宽松</option><option value="oversize">Oversize</option></select></div><div class="field field-wide"><label>自主穿搭偏好（可多选）</label><div class="style-caption">选择你希望穿出来的效果，保存档案后会自动用于穿搭建议</div><div class="style-prefs" id="bodyStylePrefs"><button type="button" class="style-chip" data-style="slim" aria-pressed="false">修身利落</button><button type="button" class="style-chip" data-style="relaxed" aria-pressed="false">宽松舒适</button><button type="button" class="style-chip" data-style="tall" aria-pressed="false">显高比例</button><button type="button" class="style-chip" data-style="slimline" aria-pressed="false">显瘦线条</button><button type="button" class="style-chip" data-style="shoulder" aria-pressed="false">优化肩部</button><button type="button" class="style-chip" data-style="minimal" aria-pressed="false">简约干净</button><button type="button" class="style-chip" data-style="street" aria-pressed="false">街头层次</button></div></div>
+<div class="field"><label for="idealTopLength">理想上衣衣长（cm，可选）</label><input id="idealTopLength" type="number" min="35" max="110" step="0.5" placeholder="按喜欢的衣长填写"></div>
+<div class="field"><label for="idealSleeve">理想袖长（cm，可选）</label><input id="idealSleeve" type="number" min="30" max="100" step="0.5" placeholder="按喜欢的袖长填写"></div>
+<div class="field"><label for="idealPantsLength">理想裤长（cm，可选）</label><input id="idealPantsLength" type="number" min="60" max="130" step="0.5" placeholder="按喜欢的裤长填写"></div>
+</div><div class="profile-actions"><button class="btn" type="button" onclick="saveProfile()">保存身材档案</button><button class="btn light" type="button" onclick="clearProfile()">清空档案</button><span class="hint">身材档案单独保存在本机，不会上传。</span></div></section>
+<section class="section reco-panel" id="styleRecommend"><h3>根据我的身材，推荐穿衣风格</h3><p>结合身高、肩胸腰臀比例和你偏好的松量，给出可执行的版型与搭配方向。资料不足时会明确提示，不会凭空判断。</p><button class="btn" type="button" onclick="recommendStyle()">生成我的风格建议 ↗</button><div id="styleResult"></div></section>
+<section id="editor" class="panel">
+<div class="section-head"><div><h2 id="formTitle">添加衣服资料</h2><p>图片、商品参数都由你提供；不自动抓取电商平台。</p></div><button class="btn light" onclick="hideEditor()">收起</button></div>
+<form id="clothesForm"><input id="editId" type="hidden"><div class="formgrid">
+<div class="field"><label>品牌 / 店铺 *</label><input id="brand" required placeholder="例如：淘宝店铺 / 优衣库"></div>
+<div class="field"><label>商品名称 *</label><input id="name" required placeholder="例如：重磅纯棉连帽卫衣"></div>
+<div class="field"><label>品类</label><select id="category"><option>卫衣</option><option>外套</option><option>羽绒服</option><option>毛衣</option><option>大衣</option><option>T恤</option><option>裤子</option><option>鞋</option><option>其他</option></select></div>
+<div class="field"><label>价格（元） *</label><input id="price" type="number" min="0" step="0.01" required placeholder="例如：199"></div>
+<div class="field"><label>面料成分</label><input id="composition" placeholder="例如：棉 80%，聚酯纤维 20%"></div>
+<div class="field"><label>克重 / 填充信息</label><input id="weight" placeholder="例如：400g / 充绒量 180g"></div>
+<div class="field"><label>版型与设计</label><input id="fit" placeholder="例如：宽松落肩、短款 boxy"></div>
+<div class="field"><label>尺码 / 尺寸数据</label><input id="sizes" placeholder="例如：M码衣长68、胸围120、肩宽54cm"></div>
+<div class="field full"><div class="subhead">成衣尺寸（选填，填商品详情页数据，单位 cm）</div></div>
+<div class="field"><label>成衣肩宽（cm）</label><input id="garmentShoulder" type="number" min="20" max="100" step="0.5" placeholder="例如 54"></div>
+<div class="field"><label>成衣胸围（cm，围度）</label><input id="garmentChest" type="number" min="50" max="220" step="0.5" placeholder="例如 120"></div>
+<div class="field"><label>成衣衣长（cm）</label><input id="garmentLength" type="number" min="30" max="150" step="0.5" placeholder="例如 70"></div>
+<div class="field"><label>成衣袖长（cm）</label><input id="garmentSleeve" type="number" min="20" max="120" step="0.5" placeholder="例如 62"></div>
+<div class="field"><label>成衣腰围（cm，裤装）</label><input id="garmentWaist" type="number" min="40" max="180" step="0.5" placeholder="例如 80"></div>
+<div class="field"><label>成衣臀围（cm，裤装）</label><input id="garmentHip" type="number" min="50" max="220" step="0.5" placeholder="例如 108"></div>
+<div class="field"><label>成衣裤长（cm）</label><input id="garmentPantsLength" type="number" min="50" max="150" step="0.5" placeholder="例如 102"></div>
+<div class="field full"><label>做工、细节、优缺点标签（用逗号分隔）</label><input id="tags" placeholder="例如：走线扎实,拉链顺滑,有线头"></div>
+<div class="field full"><label>个人备注 / 真实评价</label><textarea id="detail" placeholder="记录你看到的评价、试穿感受、缺点、适合场景等"></textarea></div>
+<div class="field"><label>商品来源链接（可选）</label><input id="source" type="url" placeholder="https://..."></div>
+<div class="field"><label>来源名称</label><input id="sourceName" placeholder="淘宝商品页 / 品牌官网 / 自己记录"></div>
+<div class="field full"><label>上传商品图片</label><input id="imageFile" type="file" accept="image/*"><div class="hint">支持手机相册选择。图片保存在本机浏览器；建议使用压缩后的商品图。</div><div id="imagePreview" class="hint"></div></div>
+</div><div class="form-actions"><button class="btn" type="submit">保存衣服资料</button><button class="btn light" type="button" onclick="resetForm()">清空表单</button></div></form></section>
+<section class="section"><div class="section-head"><div><h2>单品库</h2><p>选中 2–4 件单品，底部会自动出现对比入口。</p></div><button class="btn" onclick="compare()">开始比较 →</button></div>
+<div class="toolbar"><input id="search" placeholder="搜索品牌、名称、面料…"><select id="filter"><option value="">全部品类</option><option>卫衣</option><option>外套</option><option>羽绒服</option><option>毛衣</option><option>大衣</option><option>T恤</option><option>裤子</option><option>鞋</option><option>其他</option></select><select id="sort"><option value="score">按综合分排序</option><option value="priceAsc">价格从低到高</option><option value="priceDesc">价格从高到低</option></select></div>
+<div id="cards" class="grid"></div></section>
+<section class="section"><div class="section-head"><div><h2>我的衣橱</h2><p>把已经买到手的衣服加入这里，随时查看自己的真实衣橱。</p></div><span class="hint">仅展示标记为「已购买」的衣服</span></div><div id="wardrobeCards" class="grid"></div>
+<div class="reco-panel"><h3>已购单品 · 今日穿搭建议</h3><p>只使用你标记为「已购买」的衣服生成组合。先选你今天想要的穿衣效果，可多选，生成结果会按偏好调整。</p><div class="notice">穿搭偏好已统一放在上方「我的身材档案」中设置，生成搭配时会自动参考。</div><button class="btn" type="button" onclick="generateOutfits()">按我的偏好生成搭配 ↗</button><div id="outfitResult"></div></div></section>
+<section class="section panel"><div class="section-head"><div><h2>评分维度</h2><p>保留原五个维度与权重；算法为规则估算，不代表实验室检测。</p></div></div><div class="weights"><div class="weight"><b>30%</b><span>面料与材质</span></div><div class="weight"><b>25%</b><span>做工细节</span></div><div class="weight"><b>20%</b><span>版型设计</span></div><div class="weight"><b>15%</b><span>价格表现</span></div><div class="weight"><b>10%</b><span>信息完整度</span></div></div><div class="notice">重要：评分只根据你录入的文字参数和标签套用原检衣规则。请尽量填写真实成分、克重、做工标签与来源；系统不会联网核验商品，也不会读取淘宝/抖音账号数据。当前版本的数据保存在这台设备、这个浏览器中，清理浏览器数据前请先导出 JSON 备份。</div></section>
+<section id="report" class="section" style="display:none"><div class="section-head"><div><h2>本次选择报告</h2><p>按综合得分排序，并展示差异。</p></div><button class="btn light" onclick="document.getElementById('report').style.display='none'">关闭报告</button></div><div id="reportContent"></div></section>
+</main><div id="compareDock"><span>已选择 <b id="dockCount">0</b> 件单品 · 最多 4 件</span><button onclick="compare()">生成对比报告 ↗</button></div><footer>衣选 STUDIO · PERSONAL STYLE DECISION TOOL</footer>
+<script>
+const KEY='my_clothes_choice_v1';
+let clothes=[],chosen=[],imageData='';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const PROFILE_KEY='wearverse_body_profile_v1';
+const profileFields=['bodyHeight','bodyWeight','bodyShoulder','bodyChest','bodyWaist','bodyHip','bodyArm','bodyInseam','fitPreference','idealTopLength','idealSleeve','idealPantsLength'];
+let bodyProfile={};
+let outfitStyles=[];
+function syncBodyStylePrefs(){
+ outfitStyles=Array.isArray(bodyProfile.outfitStyles)?bodyProfile.outfitStyles:[];
+ document.querySelectorAll('#bodyStylePrefs [data-style]').forEach(b=>{
+  const on=outfitStyles.includes(b.dataset.style);
+  b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));
+ });
+}
+function initBodyStylePrefs(){
+ document.querySelectorAll('#bodyStylePrefs [data-style]').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.style;
+  outfitStyles=outfitStyles.includes(k)?outfitStyles.filter(x=>x!==k):[...outfitStyles,k];
+  b.classList.toggle('active',outfitStyles.includes(k));
+  b.setAttribute('aria-pressed',String(outfitStyles.includes(k)));
+ }));
+}
+function loadProfile(){try{bodyProfile=JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}')||{}}catch(e){bodyProfile={}}profileFields.forEach(k=>{if($(k))$(k).value=bodyProfile[k]??(k==='fitPreference'?'standard':'')});syncBodyStylePrefs();updateProfileStatus()}
+function saveProfile(){let next={};profileFields.forEach(k=>{let v=$(k).value;next[k]=k==='fitPreference'?v:(v===''?'':Number(v))});next.outfitStyles=[...outfitStyles];bodyProfile=next;localStorage.setItem(PROFILE_KEY,JSON.stringify(bodyProfile));updateProfileStatus();render();$('bodyProfile').classList.add('collapsed');$('profileToggle').textContent='修改';$('bodyProfile').scrollIntoView({behavior:'smooth',block:'start'});alert('身材档案已保存，填写面板已自动收起。')}
+function clearProfile(){if(!confirm('确定清空身材档案？不会删除你的衣服资料。'))return;bodyProfile={};outfitStyles=[];localStorage.removeItem(PROFILE_KEY);loadProfile();$('bodyProfile').classList.remove('collapsed');$('profileToggle').textContent='收起';render()}
+function toggleProfile(){let el=$('bodyProfile');el.classList.toggle('collapsed');$('profileToggle').textContent=el.classList.contains('collapsed')?'修改':'收起'}
+function updateProfileStatus(){let n=profileFields.filter(k=>k!=='fitPreference'&&bodyProfile[k]!==''&&bodyProfile[k]!=null).length;$('profileStatus').textContent=n?'已填写 '+n+' 项':'尚未填写'}
+function profileNumber(k){let v=Number(bodyProfile[k]);return Number.isFinite(v)&&v>0?v:null}
+function garmentMeasurements(p){let g={...(p.measurements||{})};let raw=String(p.sizes||'');const rules={shoulder:/肩宽\s*[:：]?\s*(\d+(?:\.\d+)?)/,chest:/胸围\s*[:：]?\s*(\d+(?:\.\d+)?)/,length:/衣长\s*[:：]?\s*(\d+(?:\.\d+)?)/,sleeve:/袖长\s*[:：]?\s*(\d+(?:\.\d+)?)/,waist:/腰围\s*[:：]?\s*(\d+(?:\.\d+)?)/,hip:/臀围\s*[:：]?\s*(\d+(?:\.\d+)?)/,pantsLength:/裤长\s*[:：]?\s*(\d+(?:\.\d+)?)/};Object.entries(rules).forEach(([k,re])=>{if(!(Number(g[k])>0)){let m=raw.match(re);if(m)g[k]=Number(m[1])}});return g}
+function garmentFit(p){
+ const g=garmentMeasurements(p),pref=bodyProfile.fitPreference||'standard';let checks=[],notes=[];
+ const add=(label,actual,target,tolerance)=>{if(actual==null||target==null)return;let diff=actual-target;let score=Math.max(0,100-Math.abs(diff)/tolerance*100);checks.push(score);let desc=diff>tolerance*.45?'偏大':diff< -tolerance*.45?'偏小':'合适';notes.push(label+' '+desc+'（相差 '+(diff>0?'+':'')+diff.toFixed(1)+' cm）')};
+ const chest=profileNumber('bodyChest'),shoulder=profileNumber('bodyShoulder'),waist=profileNumber('bodyWaist'),hip=profileNumber('bodyHip');
+ const ease={slim:{chest:8,shoulder:0,waist:4,hip:6},standard:{chest:12,shoulder:1,waist:6,hip:8},relaxed:{chest:18,shoulder:3,waist:10,hip:12},oversize:{chest:24,shoulder:5,waist:14,hip:16}}[pref]||{chest:12,shoulder:1,waist:6,hip:8};
+ add('胸围',Number(g.chest)||null,chest?chest+ease.chest:null,10);
+ add('肩宽',Number(g.shoulder)||null,shoulder?shoulder+ease.shoulder:null,5);
+ add('腰围',Number(g.waist)||null,waist?waist+ease.waist:null,10);
+ add('臀围',Number(g.hip)||null,hip?hip+ease.hip:null,12);
+ add('衣长',Number(g.length)||null,profileNumber('idealTopLength'),8);
+ add('袖长',Number(g.sleeve)||null,profileNumber('idealSleeve'),6);
+ add('裤长',Number(g.pantsLength)||null,profileNumber('idealPantsLength'),8);
+ if(!checks.length)return {score:null,notes:['缺少身体尺寸或成衣尺寸，暂时无法计算']};
+ let avg=Math.round(checks.reduce((a,b)=>a+b,0)/checks.length);return {score:avg,notes};
+}
+function personalScore(p){let base=calcScore(p).total,fit=garmentFit(p).score;return fit==null?null:Math.round(base*.8+fit*.2)}
+function load(){try{clothes=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(clothes))clothes=[];}catch(e){clothes=[]}render()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(clothes));return true}catch(e){alert('保存失败：浏览器本地空间可能不足。请压缩图片后重试，或先导出备份。');return false}}
+function calcScore(p){
+ let fabricScore=0,craftScore=0,fitScore=0,priceScore=0,infoScore=0;
+ let isHighQualityFabric=false;
+ if(p.composition){let c=p.composition;
+  if(c.includes('羊毛')||c.includes('羊绒')||c.includes('美利奴')){fabricScore+=12;isHighQualityFabric=true}
+  if(c.includes('棉')){fabricScore+=8;isHighQualityFabric=true}
+  if(c.includes('100%'))fabricScore+=4;
+  if(c.includes('P棉')||c.includes('PrimaLoft')){fabricScore+=12;isHighQualityFabric=true}
+  let m=c.match(/(\d{3,4})\s*(g|gsm|g\/m)/i);
+  if(m){let w=parseInt(m[1]);if(w>=400)fabricScore+=8;else if(w>=300)fabricScore+=4}
+  else if(c.includes('重磅')||p.name.includes('重磅'))fabricScore+=4;
+ }
+ if(!isHighQualityFabric)fabricScore=10;if(fabricScore>30)fabricScore=30;
+ craftScore=18;
+ (p.reviewTags||[]).forEach(tag=>{if(tag.includes('做工精细')||tag.includes('内里包边')||tag.includes('走线扎实'))craftScore+=5;if(tag.includes('线头')||tag.includes('易松')||tag.includes('缺陷'))craftScore-=5});
+ if(p.detail&&/做工缺陷|开线|脱线|拉链易卡/.test(p.detail))craftScore-=3;
+ if(p.controversy)craftScore-=3;if(craftScore>25)craftScore=25;if(craftScore<5)craftScore=5;
+ fitScore=15;if(p.fit){if(['剪裁','立体','挺阔','宽松'].some(x=>p.fit.includes(x)))fitScore+=3;if(['修身','正肩','箱形'].some(x=>p.fit.includes(x)))fitScore+=2}if(fitScore>20)fitScore=20;
+ priceScore=10;let cat=p.category,price=Number(p.price)||0;
+ if(cat==='卫衣'){if(price<=100)priceScore=15;else if(price<=200)priceScore=12;else if(price<=300)priceScore=8;else priceScore=5}
+ else if(cat==='毛衣'||cat==='T恤'){if(price<=150)priceScore=15;else if(price<=250)priceScore=12;else priceScore=8}
+ else if(cat==='羽绒服'||cat==='外套'){if(price<=200)priceScore=15;else if(price<=350)priceScore=12;else if(price<=500)priceScore=8;else priceScore=5}
+ else if(cat==='大衣'||cat==='裤子'||cat==='鞋'){if(price<=200)priceScore=15;else if(price<=300)priceScore=12;else priceScore=8}
+ infoScore=5;if(p.sizes)infoScore+=3;if(p.sourceName)infoScore+=2;
+ let total=fabricScore+craftScore+fitScore+priceScore+infoScore;
+ return {total,detail:{fabric:fabricScore,craft:craftScore,fit:fitScore,price:priceScore,info:infoScore}};
+}
+function cardHTML(p,wardrobe=false){
+ let s=calcScore(p),on=chosen.includes(p.id),owned=!!p.purchased;
+ return `<article class="card"><div class="photo">${p.image?`<img src="${p.image}" alt="${esc(p.name)}">`:'暂无图片'}</div><div class="cardbody"><div class="brand">${esc(p.brand)} · ${esc(p.category)}${owned?'<span class="owned-tag">已购买 · 我的衣橱</span>':''}</div><h3>${esc(p.name)}</h3><div class="meta">${esc(p.composition||'未填写面料')}<br>${esc(p.fit||'未填写版型')}</div><div class="price">¥${Number(p.price).toFixed(2)}</div><div class="score"><span>检衣综合评分</span><strong>${s.total}/100</strong></div><div class="bar"><i style="width:${s.total}%"></i></div><div class="meta">面料 ${s.detail.fabric}/30 · 做工 ${s.detail.craft}/25<br>版型 ${s.detail.fit}/20 · 价格 ${s.detail.price}/15 · 信息 ${s.detail.info}/10</div>${garmentFit(p).score==null?'':'<div class="fit-pill">身材适配 '+garmentFit(p).score+'/100 · 个性化 '+personalScore(p)+'/100</div>'}<div class="cardbuttons"><button class="${owned?'selected':'secondary'}" onclick="togglePurchased('${p.id}')">${owned?'已购买 · 移出衣橱':'标记已购买'}</button><button class="${on?'selected':'secondary'}" onclick="toggleChoose('${p.id}')">${on?'已加入对比':'加入对比'}</button><button class="secondary" onclick="editItem('${p.id}')">编辑</button><button class="secondary" onclick="deleteItem('${p.id}')">删除</button></div></div></article>`;
+}
+function render(){
+ let q=$('search').value.trim().toLowerCase(),cat=$('filter').value;
+ let list=clothes.filter(p=>(!cat||p.category===cat)&&(!q||[p.brand,p.name,p.composition,p.fit,p.category].join(' ').toLowerCase().includes(q)));
+ list.forEach(p=>p.score=calcScore(p));
+ let sort=$('sort').value;if(sort==='score')list.sort((a,b)=>b.score.total-a.score.total);if(sort==='priceAsc')list.sort((a,b)=>a.price-b.price);if(sort==='priceDesc')list.sort((a,b)=>b.price-a.price);
+ $('totalCount').textContent=clothes.length;$('chosenCount').textContent=chosen.length+'/4';$('bestScore').textContent=clothes.length?Math.max(...clothes.map(p=>calcScore(p).total)):'—';
+ let owned=clothes.filter(p=>p.purchased);
+ $('wardrobeCount').textContent=owned.length;
+ $('cards').innerHTML=list.length?list.map(p=>cardHTML(p)).join(''):'<div class="empty">还没有符合条件的衣服。点击「添加衣服」，录入你正在考虑的单品。</div>';
+ $('wardrobeCards').innerHTML=owned.length?owned.sort((a,b)=>a.name.localeCompare(b.name,'zh-CN')).map(p=>cardHTML(p,true)).join(''):'<div class="empty">衣橱还是空的。买到衣服后，在上方候选衣服卡片点击「标记已购买」，它就会出现在这里。</div>';
+ let dock=$('compareDock');$('dockCount').textContent=chosen.length;dock.classList.toggle('visible',chosen.length>0);
+}
+function showEditor(){ $('editor').classList.add('show');$('editor').scrollIntoView({behavior:'smooth'});}
+function hideEditor(){ $('editor').classList.remove('show');}
+function resetForm(){ $('clothesForm').reset();$('editId').value='';imageData='';$('imagePreview').textContent='';$('formTitle').textContent='添加衣服资料';['garmentShoulder','garmentChest','garmentLength','garmentSleeve','garmentWaist','garmentHip','garmentPantsLength'].forEach(k=>$(k).value='');}
+$('imageFile').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;if(f.size>5*1024*1024){alert('图片请控制在 5MB 以内');e.target.value='';return}let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{let c=document.createElement('canvas'),scale=Math.min(1,1000/im.width);c.width=im.width*scale;c.height=im.height*scale;c.getContext('2d').drawImage(im,0,0,c.width,c.height);imageData=c.toDataURL('image/jpeg',.78);$('imagePreview').textContent='图片已载入并压缩';};im.src=r.result};r.readAsDataURL(f)});
+$('clothesForm').addEventListener('submit',e=>{e.preventDefault();let id=$('editId').value||('item_'+Date.now());let old=clothes.find(x=>x.id===id);let p={id,brand:$('brand').value.trim(),name:$('name').value.trim(),category:$('category').value,price:Number($('price').value),composition:$('composition').value.trim(),weight:$('weight').value.trim(),fit:$('fit').value.trim(),sizes:$('sizes').value.trim(),reviewTags:$('tags').value.split(/[,，、]/).map(x=>x.trim()).filter(Boolean),detail:$('detail').value.trim(),source:$('source').value.trim(),sourceName:$('sourceName').value.trim(),measurements:{shoulder:$('garmentShoulder').value,chest:$('garmentChest').value,length:$('garmentLength').value,sleeve:$('garmentSleeve').value,waist:$('garmentWaist').value,hip:$('garmentHip').value,pantsLength:$('garmentPantsLength').value},image:imageData||(old&&old.image)||''};if(old)clothes=clothes.map(x=>x.id===id?p:x);else clothes.unshift(p);if(save()){resetForm();hideEditor();render();}});
+function editItem(id){let p=clothes.find(x=>x.id===id);if(!p)return;showEditor();$('formTitle').textContent='编辑衣服资料';$('editId').value=p.id;['brand','name','category','price','composition','fit','sizes','detail','source','sourceName'].forEach(k=>$(k).value=p[k]??'');$('tags').value=(p.reviewTags||[]).join('，');let m=p.measurements||{};[['garmentShoulder','shoulder'],['garmentChest','chest'],['garmentLength','length'],['garmentSleeve','sleeve'],['garmentWaist','waist'],['garmentHip','hip'],['garmentPantsLength','pantsLength']].forEach(([id,k])=>$(id).value=m[k]??'');imageData=p.image||'';$('imagePreview').textContent=imageData?'已保留原图片（重新选图可替换）':'';}
+function deleteItem(id){if(!confirm('确定删除这件衣服？'))return;clothes=clothes.filter(p=>p.id!==id);chosen=chosen.filter(x=>x!==id);save();render()}
+function toggleChoose(id){if(chosen.includes(id))chosen=chosen.filter(x=>x!==id);else{if(chosen.length>=4){alert('最多同时对比 4 件');return}chosen.push(id)}$('chosenCount').textContent=chosen.length+'/4';render()}
+function togglePurchased(id){
+ let p=clothes.find(x=>x.id===id);if(!p)return;
+ p.purchased=!p.purchased;
+ if(save())render();
+}
+function compare(){let list=clothes.filter(p=>chosen.includes(p.id));if(list.length<2){alert('请先选择至少 2 件衣服');return}let hasProfile=['bodyChest','bodyShoulder','bodyWaist','bodyHip','idealTopLength','idealSleeve','idealPantsLength'].some(k=>profileNumber(k));list.sort((a,b)=>(hasProfile?(personalScore(b)??calcScore(b).total):(calcScore(b).total))-(hasProfile?(personalScore(a)??calcScore(a).total):(calcScore(a).total)));let top=list[0],sc=calcScore(top);let rows=[['检衣综合评分',p=>calcScore(p).total+'/100'],['个人身材适配度',p=>garmentFit(p).score==null?'资料不足':garmentFit(p).score+'/100'],['个性化参考分',p=>personalScore(p)==null?'资料不足':personalScore(p)+'/100'],['价格',p=>'¥'+p.price],['面料成分',p=>p.composition||'未填写'],['克重/填充',p=>p.weight||'未填写'],['做工标签',p=>(p.reviewTags||[]).join('、')||'未填写'],['版型设计',p=>p.fit||'未填写'],['尺码数据',p=>p.sizes||'未填写'],['成衣尺寸',p=>{let m=garmentMeasurements(p);return Object.entries({肩宽:m.shoulder,胸围:m.chest,衣长:m.length,袖长:m.sleeve,腰围:m.waist,臀围:m.hip,裤长:m.pantsLength}).filter(([k,v])=>v).map(([k,v])=>k+' '+v+'cm').join('；')||'未填写'}],['你的身体尺寸',p=>['身高 '+(profileNumber('bodyHeight')||'未填')+'cm','胸围 '+(profileNumber('bodyChest')||'未填')+'cm','肩宽 '+(profileNumber('bodyShoulder')||'未填')+'cm','腰围 '+(profileNumber('bodyWaist')||'未填')+'cm','臀围 '+(profileNumber('bodyHip')||'未填')+'cm'].join('；')],['信息来源',p=>p.sourceName||'未填写']];let table='<div class="tablewrap"><table class="compare-table"><thead><tr><th>对比项目</th>'+list.map(p=>'<th>'+esc(p.brand)+'<br>'+esc(p.name)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr><th>'+r[0]+'</th>'+list.map(p=>'<td>'+esc(r[1](p))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';let detail='<div class="weights">'+[['面料与材质',30],['做工细节',25],['版型设计',20],['价格表现',15],['信息完整度',10]].map(x=>'<div class="weight"><b>'+x[1]+'%</b><span>'+x[0]+'</span></div>').join('')+'</div>';let delta=list.length>1?(personalScore(top)??sc.total)-(personalScore(list[1])??calcScore(list[1]).total):0;let fitSummary='';if(hasProfile){let fit=garmentFit(top);fitSummary='<div class="notice"><b>身材适配建议</b><br>'+fit.notes.map(esc).join('；')+'。个性化参考分在检衣综合评分与身材适配度之间按 80% / 20% 合成；尺寸缺失时不参与适配计算。此结果仅为尺寸估算，建议结合试穿与品牌尺码表判断。</div>'}else{fitSummary='<div class="notice">想知道哪件更适合你的身材？先填写上方「我的身材档案」，并在衣服资料中补充成衣尺寸，系统就能加入身材适配比较。</div>'}$('reportContent').innerHTML='<div class="winner"><div>'+(hasProfile?'个性化参考分最高':'当前综合得分最高')+'</div><b>'+esc(top.brand)+' · '+esc(top.name)+'</b><div style="margin-top:7px">检衣综合分 '+sc.total+' 分'+(hasProfile&&personalScore(top)!=null?'，个性化参考分 '+personalScore(top)+' 分':'')+(delta?'，领先下一件 '+delta+' 分':'')+'。这是按录入资料计算的规则分，不等于实际穿着体验。</div></div>'+fitSummary+detail+table+'<div class="notice">怎么选：先看综合分，再结合你最在意的项目。资料未填写的项目会显示「未填写」，不要把它理解成商品质量差。</div>';$('report').style.display='block';let wrap=$('reportContent').querySelector('.tablewrap');if(wrap)wrap.scrollLeft=0;$('report').scrollIntoView({behavior:'smooth'});}
+function styleProfileData(){
+ const h=profileNumber('bodyHeight'),sh=profileNumber('bodyShoulder'),ch=profileNumber('bodyChest'),wa=profileNumber('bodyWaist'),hip=profileNumber('bodyHip');
+ const filled=[h,sh,ch,wa,hip].filter(Boolean).length;
+ return {h,sh,ch,wa,hip,filled};
+}
+function recommendStyle(){
+ const d=styleProfileData(),pref=bodyProfile.fitPreference||'standard';let rec=[],basis=[];
+ if(d.filled<2){$('styleResult').innerHTML='<div class="reco-empty">目前身体数据较少。建议至少填写身高、肩宽、胸围、腰围、臀围中的两项；数据越完整，建议越具体。填写后保存档案，再点击生成即可。</div>';return}
+ if(d.h){if(d.h<165){rec.push(['纵向利落比例','优先考虑短款外套、上短下长、同色系裤装和适度提高腰线；避免上衣下摆刚好卡在身体最宽处。']);basis.push('身高 '+d.h+'cm')}
+ else if(d.h>=180){rec.push(['长线条层次','可以尝试中长外套、直筒裤与有层次的叠穿；注意上下装比例，不必刻意把衣服都选得很长。']);basis.push('身高 '+d.h+'cm')}
+ else{rec.push(['均衡比例','短款与常规长度都可尝试；用裤型、鞋型和上衣下摆位置调整整体比例。']);basis.push('身高 '+d.h+'cm')}}
+ if(d.sh&&d.h&&d.sh/d.h>.265){rec.push(['肩部线条柔和','如果希望弱化肩部存在感，可试落肩幅度适中、插肩袖、柔软垂坠面料；少选肩线外扩和厚重垫肩。']);basis.push('肩宽/身高比例偏高')}
+ if(d.wa&&d.h&&d.wa/d.h>.48){rec.push(['腰腹舒适与垂直线条','可尝试微宽松直筒上衣、开襟外套、前中线设计和中高腰直筒下装；避免过紧面料造成束缚。']);basis.push('腰围/身高比例')}
+ if(d.hip&&d.wa&&d.hip-d.wa>18){rec.push(['上下装平衡','可用肩部有结构但不过度膨胀的上装，与直筒或微阔腿下装搭配；上衣长度可在胯部附近或略短位置试穿比较。']);basis.push('臀腰围差 '+(d.hip-d.wa).toFixed(1)+'cm')}
+ if(d.ch&&d.wa&&d.ch-d.wa>18){rec.push(['上身松量选择','上衣优先看胸围成衣尺寸和肩宽，不只看 S/M/L；可用开襟、V形领口或外搭形成纵向线条。']);basis.push('胸腰围差 '+(d.ch-d.wa).toFixed(1)+'cm')}
+ const prefText={slim:'你偏好修身：选择有弹性或活动量足够的面料，重点核对胸围、肩宽与腰臀围。',standard:'你偏好标准合身：以肩线自然、胸腰留有活动量为基准。',relaxed:'你偏好宽松：优先看成衣胸围、肩宽和衣长，宽松不等于所有部位都越大越好。',oversize:'你偏好 Oversize：建议保留一处清晰比例（如下装直筒、上衣长度不过度堆叠），避免全身都过量。'}[pref];
+ rec.push(['你的松量偏好',prefText]);
+ const prefLabels={slim:'修身利落',relaxed:'宽松舒适',tall:'显高比例',slimline:'显瘦线条',shoulder:'优化肩部',minimal:'简约干净',street:'街头层次'};
+ if(outfitStyles.length)rec.push(['你的自主穿搭偏好',outfitStyles.map(k=>prefLabels[k]).filter(Boolean).join('、')+'。后续搭配建议会优先参考这些选择。']);
+ $('styleResult').innerHTML='<div class="reco-grid">'+rec.map(x=>'<div class="reco-card"><b>'+esc(x[0])+'</b><p>'+esc(x[1])+'</p></div>').join('')+'</div><div class="reco-empty"><b>本次依据：</b>'+esc(basis.join('；')||'已填写身体数据')+'。这些是穿衣比例与版型建议，不是对身材好坏的评价；实际效果还受个人审美、品牌剪裁和试穿影响。</div>';
+}
+function generateOutfits(){
+ const owned=clothes.filter(p=>p.purchased),out=$('outfitResult');
+ if(!owned.length){out.innerHTML='<div class="reco-empty">你的衣橱里还没有已购买单品。先在单品卡片点击「标记已购买」，再来生成搭配建议。</div>';return}
+ const tops=owned.filter(p=>['T恤','卫衣','毛衣'].includes(p.category)),layers=owned.filter(p=>['外套','羽绒服','大衣'].includes(p.category)),bottoms=owned.filter(p=>p.category==='裤子'),shoes=owned.filter(p=>p.category==='鞋');
+ let combos=[];
+ const add=(a,b,c,d)=>{if(!a&&!b&&!c&&!d)return;let items=[a,b,c,d].filter(Boolean);if(items.length>=2&&!combos.some(x=>x.map(y=>y.id).join('|')===items.map(y=>y.id).join('|')))combos.push(items)};
+ if(tops.length&&bottoms.length){tops.forEach(t=>bottoms.forEach(b=>{add(t,b,layers[0],shoes[0]);add(t,b)}))}
+ if(layers.length&&bottoms.length)layers.forEach(l=>bottoms.forEach(b=>add(l,b,tops[0],shoes[0])));
+ if(tops.length&&layers.length)tops.forEach(t=>layers.forEach(l=>add(t,l,bottoms[0],shoes[0])));
+ if(!combos.length){owned.slice(0,4).forEach((p,i)=>{if(i===0)add(p,owned[1]);});}
+ combos=combos.slice(0,6);
+ const labels=p=>p.map(x=>x.category+'：'+x.name).join(' ＋ ');
+ const tips=combos.map((items,i)=>{let hasOuter=items.some(x=>['外套','羽绒服','大衣'].includes(x.category));let hasBottom=items.some(x=>x.category==='裤子');let fit=bodyProfile.fitPreference||'standard';let tip=hasBottom?'上装可根据裤腰位置调整下摆，注意裤长与鞋面衔接。':'可补充一条直筒或微阔腿裤，让上下装比例更完整。';if(hasOuter)tip+=' 外套敞开穿可增加纵向层次。';if(fit==='oversize')tip+=' 你的基础松量偏好是 Oversize，建议内搭相对简洁，避免全身轮廓过于膨胀。';else if(fit==='slim')tip+=' 你的基础松量偏好是修身，注意内搭与外套留出活动空间。';if((bodyProfile.outfitStyles||[]).includes('slim'))tip+=' 按「修身利落」偏好：优先保持肩线合适、腰部不过度堆量，避免靠小一码强行修身。';if((bodyProfile.outfitStyles||[]).includes('relaxed'))tip+=' 按「宽松舒适」偏好：选择有余量但肩线、衣长仍有边界的单品，避免上下装同时过度膨胀。';if((bodyProfile.outfitStyles||[]).includes('tall'))tip+=' 按「显高比例」偏好：尝试上短下长、中高腰下装、同色系纵向延伸，裤脚避免过多堆积。';if((bodyProfile.outfitStyles||[]).includes('slimline'))tip+=' 按「显瘦线条」偏好：用外套敞开穿、纵向线条和适度垂坠面料形成连贯轮廓，避免紧绷。';if((bodyProfile.outfitStyles||[]).includes('shoulder'))tip+=' 按「优化肩部」偏好：优先自然肩线或适度落肩，避免厚垫肩和明显横向扩张。';if((bodyProfile.outfitStyles||[]).includes('minimal'))tip+=' 按「简约干净」偏好：控制颜色数量与装饰细节，让一件单品成为视觉重点。';if((bodyProfile.outfitStyles||[]).includes('street'))tip+=' 按「街头层次」偏好：可用内搭露边、外套叠穿和宽直筒下装增加层次，注意保留主次。';return '<div class="reco-card"><b>LOOK 0'+(i+1)+'</b><p>'+esc(labels(items))+'</p><div class="reco-tags">'+items.map(x=>'<span>'+esc(x.category)+'</span>').join('')+'</div><p>'+esc(tip)+'</p></div>'}).join('');
+ out.innerHTML=combos.length?'<div class="reco-grid">'+tips+'</div><div class="reco-empty">搭配只基于已购买衣服的品类与现有信息。颜色、季节、正式程度尚未录入，因此建议先作为组合灵感；补充单品备注后可进一步细化。</div>':'<div class="reco-empty">目前已购单品品类较单一。再加入上衣、裤子或外套中的其他品类，就能生成更完整的组合建议。</div>';
+}
+function exportJSON(){let blob=new Blob([JSON.stringify(clothes,null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='我的衣服资料备份.json';a.click();URL.revokeObjectURL(a.href)}
+function importJSON(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let data=JSON.parse(r.result);if(!Array.isArray(data))throw Error();let map=new Map(clothes.map(p=>[p.id,p]));data.forEach(p=>{if(p&&p.name&&p.id)map.set(p.id,{...p,purchased:!!p.purchased})});clothes=[...map.values()];if(save())render();alert('导入完成');}catch(err){alert('文件格式不正确，请选择本网站导出的 JSON 备份')}e.target.value=''};r.readAsText(f)}
+$('search').addEventListener('input',render);$('filter').addEventListener('change',render);$('sort').addEventListener('change',render);initBodyStylePrefs();loadProfile();load();
+</script></body></html>
